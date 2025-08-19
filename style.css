@@ -86,9 +86,16 @@ header {
     color: #ff9800;
 }
 
+button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
 .controls-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 15px;
     margin-bottom: 25px;
 }
@@ -105,9 +112,9 @@ label {
     font-weight: 500;
 }
 
-select, button {
+select {
     padding: 10px;
-    border: 1px solid #2a2a2a;
+    border: 1px solid var(--border);
     border-radius: 6px;
     background: #1a1a1a;
     color: var(--text);
@@ -115,14 +122,19 @@ select, button {
     outline: none;
 }
 
-select:focus { border-color: var(--accent); }
+select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
+}
 
 .btn-primary {
     background: var(--accent);
     color: white;
     border: none;
-    cursor: pointer;
+    padding: 12px;
+    border-radius: 8px;
     font-weight: 600;
+    cursor: pointer;
 }
 
 .btn-primary:hover {
@@ -144,7 +156,7 @@ select:focus { border-color: var(--accent); }
     overflow: hidden;
     margin-bottom: 25px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    border: 1px solid #2a2a2a;
+    border: 1px solid var(--border);
 }
 
 .signal-header {
