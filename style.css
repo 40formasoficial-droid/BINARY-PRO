@@ -9,11 +9,8 @@
     --card: #121212;
     --border: #2a2a2a;
     --text: #e0e0e0;
-    --text-light: #aaaaaa;
     --accent: #00c853;
-    --accent-hover: #00e15e;
     --danger: #d50000;
-    --warning: #ff9800;
     --font: 'Inter', sans-serif;
 }
 
@@ -22,8 +19,7 @@ body {
     color: var(--text);
     font-family: var(--font);
     line-height: 1.6;
-    padding: 0;
-    margin: 0;
+    transition: background 1s;
 }
 
 .container {
@@ -90,15 +86,9 @@ header {
     color: #ff9800;
 }
 
-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
 .controls-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 15px;
     margin-bottom: 25px;
 }
@@ -111,43 +101,37 @@ button {
 
 label {
     font-size: 13px;
-    color: var(--text-light);
+    color: #aaa;
     font-weight: 500;
 }
 
-select {
-    padding: 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--card);
+select, button {
+    padding: 10px;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    background: #1a1a1a;
     color: var(--text);
     font-size: 14px;
     outline: none;
 }
 
-select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
-}
+select:focus { border-color: var(--accent); }
 
 .btn-primary {
     background: var(--accent);
     color: white;
     border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 15px;
     cursor: pointer;
     font-weight: 600;
 }
 
 .btn-primary:hover {
-    background: var(--accent-hover);
+    background: #00e15e;
     transform: translateY(-1px);
 }
 
 .chart-container {
-    background: var(--card);
+    background: #1a1a1a;
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 25px;
@@ -155,12 +139,12 @@ select:focus {
 }
 
 .signal-panel {
-    background: var(--card);
+    background: #1e1e1e;
     border-radius: 16px;
     overflow: hidden;
     margin-bottom: 25px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    border: 1px solid var(--border);
+    border: 1px solid #2a2a2a;
 }
 
 .signal-header {
@@ -174,7 +158,7 @@ select:focus {
 
 .signal-header h2 {
     font-size: 16px;
-    color: var(--text-light);
+    color: #aaa;
     letter-spacing: 1px;
     text-transform: uppercase;
 }
@@ -186,7 +170,7 @@ select:focus {
 }
 
 .signal-content {
-    padding: 30px 20px;
+    padding: 20px;
     text-align: left;
 }
 
