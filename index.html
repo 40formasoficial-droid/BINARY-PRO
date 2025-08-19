@@ -3,60 +3,605 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>📊MEU ROBO </title>
+    <title>🚀 BinaryVision AI Pro</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>BinaryBot Studio</h1>
-        <p>Plataforma de estudo para opções binárias (modo simulação)</p>
+        <header>
+            <div class="logo">
+                <div class="logo-circle">🎯</div>
+                <h1>BinaryVision AI Pro</h1>
+            </div>
+            <div class="status">
+                <select id="broker" onchange="updateMarket()">
+                    <option value="quotex">Quotex</option>
+                    <option value="iqoption">IQ Option</option>
+                    <option value="deriv">Deriv</option>
+                </select>
+                <span class="badge green" id="marketStatus">MERCADO ABERTO</span>
+                <button id="soundToggle" onclick="toggleSound()" title="Desligar som" style="background:none;border:none;cursor:pointer;font-size:18px;">🔊</button>
+            </div>
+        </header>
 
-        <div class="controls">
-            <select id="asset">
-                <option value="R_75">Volatilidade 75</option>
-                <option value="BTC">BTC/USD</option>
-                <option value="EURUSD">EUR/USD</option>
-            </select>
-            <select id="strategy">
-                <option value="sr">Suporte & Resistência</option>
-                <option value="candle">Padrões de Candle</option>
-                <option value="mix">Estratégia Mista</option>
-            </select>
-            <button onclick="runBacktest()">▶️ Rodar Backtest</button>
-            <button onclick="clearLogs()">🧹 Limpar</button>
+        <div class="controls-grid">
+            <div class="control-item">
+                <label>Ativo</label>
+                <select id="asset"></select>
+            </div>
+
+            <div class="control-item">
+                <label>Timeframe</label>
+                <select id="timeframe">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="15">15 minutos</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <label>Expiração</label>
+                <select id="expiry">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="3">3 minutos</option>
+                    <option value="4">4 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="candle">Fim da vela</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <button class="btn-primary" onclick="generateSignal()">
+                    🔄 Gerar Sinal
+                </button>
+            </div>
         </div>
 
-        <div class="results">
-            <h2>📈 Resultados</h2>
-            <p>Operações: <span id="total">0</span></p>
-            <p>Acertos: <span id="wins">0</span></p>
-            <p>Erros: <span id="losses">0</span></p>
-            <p>Win Rate: <span id="winrate">0%</span></p>
-            <p>Lucro Estimado: <span id="profit">$0</span></p>
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
         </div>
 
-        <div class="logs">
-            <h3>📋 Logs de Operações</h3>
-            <pre id="log-output">Aguardando execução...</pre>
+        <div class="signal-panel" id="signalBox">
+            <div class="signal-header">
+                <h2>SINAL DE OPERAÇÃO</h2>
+                <div class="signal-timer" id="timer">00:00</div>
+            </div>
+
+            <div class="signal-content">
+                <div class="signal-row">
+                    <strong>Corretora:</strong> <span id="signalBroker">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ativo:</strong> <span id="signalAsset">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ação:</strong> <span id="signalDirection">AGUARDANDO</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Confiança:</strong> <span id="signalConfidence">0%</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Expiração:</strong> <span id="signalExpiry">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Taxa de Retorno:</strong> <span id="signalReturn">90%</span>
+                </div>
+                <div class="signal-row strategy">
+                    <strong>Estratégia:</strong> <span id="signalStrategy">Nenhuma</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script type="application/json" id="market-data">
-    [
-      {"time": "10:00", "open": 1000, "high": 1008, "low": 992, "close": 1005, "volume": 150},
-      {"time": "10:01", "open": 1005, "high": 1012, "low": 998, "close": 999, "volume": 180},
-      {"time": "10:02", "open": 999, "high": 1001, "low": 990, "close": 992, "volume": 210},
-      {"time": "10:03", "open": 992, "high": 998, "low": 985, "close": 988, "volume": 170},
-      {"time": "10:04", "open": 988, "high": 995, "low": 982, "close": 993, "volume": 160},
-      {"time": "10:05", "open": 993, "high": 999, "low": 987, "close": 990, "volume": 190},
-      {"time": "10:06", "open": 990, "high": 996, "low": 984, "close": 986, "volume": 200},
-      {"time": "10:07", "open": 986, "high": 992, "low": 980, "close": 991, "volume": 180},
-      {"time": "10:08", "open": 991, "high": 997, "low": 989, "close": 994, "volume": 170},
-      {"time": "10:09", "open": 994, "high": 1000, "low": 992, "close": 998, "volume": 210}
-    ]
-    </script>
-
-    <script src="backtest-engine.js"></script>
+    <script src="script.js"></script>
 </body>
+</html><!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>🚀 BinaryVision AI Pro</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-circle">🎯</div>
+                <h1>BinaryVision AI Pro</h1>
+            </div>
+            <div class="status">
+                <select id="broker" onchange="updateMarket()">
+                    <option value="quotex">Quotex</option>
+                    <option value="iqoption">IQ Option</option>
+                    <option value="deriv">Deriv</option>
+                </select>
+                <span class="badge green" id="marketStatus">MERCADO ABERTO</span>
+                <button id="soundToggle" onclick="toggleSound()" title="Desligar som" style="background:none;border:none;cursor:pointer;font-size:18px;">🔊</button>
+            </div>
+        </header>
 
+        <div class="controls-grid">
+            <div class="control-item">
+                <label>Ativo</label>
+                <select id="asset"></select>
+            </div>
+
+            <div class="control-item">
+                <label>Timeframe</label>
+                <select id="timeframe">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="15">15 minutos</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <label>Expiração</label>
+                <select id="expiry">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="3">3 minutos</option>
+                    <option value="4">4 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="candle">Fim da vela</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <button class="btn-primary" onclick="generateSignal()">
+                    🔄 Gerar Sinal
+                </button>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+
+        <div class="signal-panel" id="signalBox">
+            <div class="signal-header">
+                <h2>SINAL DE OPERAÇÃO</h2>
+                <div class="signal-timer" id="timer">00:00</div>
+            </div>
+
+            <div class="signal-content">
+                <div class="signal-row">
+                    <strong>Corretora:</strong> <span id="signalBroker">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ativo:</strong> <span id="signalAsset">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ação:</strong> <span id="signalDirection">AGUARDANDO</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Confiança:</strong> <span id="signalConfidence">0%</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Expiração:</strong> <span id="signalExpiry">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Taxa de Retorno:</strong> <span id="signalReturn">90%</span>
+                </div>
+                <div class="signal-row strategy">
+                    <strong>Estratégia:</strong> <span id="signalStrategy">Nenhuma</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>🚀 BinaryVision AI Pro</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-circle">🎯</div>
+                <h1>BinaryVision AI Pro</h1>
+            </div>
+            <div class="status">
+                <select id="broker" onchange="updateMarket()">
+                    <option value="quotex">Quotex</option>
+                    <option value="iqoption">IQ Option</option>
+                    <option value="deriv">Deriv</option>
+                </select>
+                <span class="badge green" id="marketStatus">MERCADO ABERTO</span>
+                <button id="soundToggle" onclick="toggleSound()" title="Desligar som" style="background:none;border:none;cursor:pointer;font-size:18px;">🔊</button>
+            </div>
+        </header>
+
+        <div class="controls-grid">
+            <div class="control-item">
+                <label>Ativo</label>
+                <select id="asset"></select>
+            </div>
+
+            <div class="control-item">
+                <label>Timeframe</label>
+                <select id="timeframe">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="15">15 minutos</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <label>Expiração</label>
+                <select id="expiry">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="3">3 minutos</option>
+                    <option value="4">4 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="candle">Fim da vela</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <button class="btn-primary" onclick="generateSignal()">
+                    🔄 Gerar Sinal
+                </button>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+
+        <div class="signal-panel" id="signalBox">
+            <div class="signal-header">
+                <h2>SINAL DE OPERAÇÃO</h2>
+                <div class="signal-timer" id="timer">00:00</div>
+            </div>
+
+            <div class="signal-content">
+                <div class="signal-row">
+                    <strong>Corretora:</strong> <span id="signalBroker">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ativo:</strong> <span id="signalAsset">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ação:</strong> <span id="signalDirection">AGUARDANDO</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Confiança:</strong> <span id="signalConfidence">0%</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Expiração:</strong> <span id="signalExpiry">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Taxa de Retorno:</strong> <span id="signalReturn">90%</span>
+                </div>
+                <div class="signal-row strategy">
+                    <strong>Estratégia:</strong> <span id="signalStrategy">Nenhuma</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>🚀 BinaryVision AI Pro</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-circle">🎯</div>
+                <h1>BinaryVision AI Pro</h1>
+            </div>
+            <div class="status">
+                <select id="broker" onchange="updateMarket()">
+                    <option value="quotex">Quotex</option>
+                    <option value="iqoption">IQ Option</option>
+                    <option value="deriv">Deriv</option>
+                </select>
+                <span class="badge green" id="marketStatus">MERCADO ABERTO</span>
+                <button id="soundToggle" onclick="toggleSound()" title="Desligar som" style="background:none;border:none;cursor:pointer;font-size:18px;">🔊</button>
+            </div>
+        </header>
+
+        <div class="controls-grid">
+            <div class="control-item">
+                <label>Ativo</label>
+                <select id="asset"></select>
+            </div>
+
+            <div class="control-item">
+                <label>Timeframe</label>
+                <select id="timeframe">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="15">15 minutos</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <label>Expiração</label>
+                <select id="expiry">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="3">3 minutos</option>
+                    <option value="4">4 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="candle">Fim da vela</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <button class="btn-primary" onclick="generateSignal()">
+                    🔄 Gerar Sinal
+                </button>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+
+        <div class="signal-panel" id="signalBox">
+            <div class="signal-header">
+                <h2>SINAL DE OPERAÇÃO</h2>
+                <div class="signal-timer" id="timer">00:00</div>
+            </div>
+
+            <div class="signal-content">
+                <div class="signal-row">
+                    <strong>Corretora:</strong> <span id="signalBroker">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ativo:</strong> <span id="signalAsset">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ação:</strong> <span id="signalDirection">AGUARDANDO</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Confiança:</strong> <span id="signalConfidence">0%</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Expiração:</strong> <span id="signalExpiry">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Taxa de Retorno:</strong> <span id="signalReturn">90%</span>
+                </div>
+                <div class="signal-row strategy">
+                    <strong>Estratégia:</strong> <span id="signalStrategy">Nenhuma</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>🚀 BinaryVision AI Pro</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-circle">🎯</div>
+                <h1>BinaryVision AI Pro</h1>
+            </div>
+            <div class="status">
+                <select id="broker" onchange="updateMarket()">
+                    <option value="quotex">Quotex</option>
+                    <option value="iqoption">IQ Option</option>
+                    <option value="deriv">Deriv</option>
+                </select>
+                <span class="badge green" id="marketStatus">MERCADO ABERTO</span>
+                <button id="soundToggle" onclick="toggleSound()" title="Desligar som" style="background:none;border:none;cursor:pointer;font-size:18px;">🔊</button>
+            </div>
+        </header>
+
+        <div class="controls-grid">
+            <div class="control-item">
+                <label>Ativo</label>
+                <select id="asset"></select>
+            </div>
+
+            <div class="control-item">
+                <label>Timeframe</label>
+                <select id="timeframe">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="15">15 minutos</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <label>Expiração</label>
+                <select id="expiry">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="3">3 minutos</option>
+                    <option value="4">4 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="candle">Fim da vela</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <button class="btn-primary" onclick="generateSignal()">
+                    🔄 Gerar Sinal
+                </button>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+
+        <div class="signal-panel" id="signalBox">
+            <div class="signal-header">
+                <h2>SINAL DE OPERAÇÃO</h2>
+                <div class="signal-timer" id="timer">00:00</div>
+            </div>
+
+            <div class="signal-content">
+                <div class="signal-row">
+                    <strong>Corretora:</strong> <span id="signalBroker">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ativo:</strong> <span id="signalAsset">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ação:</strong> <span id="signalDirection">AGUARDANDO</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Confiança:</strong> <span id="signalConfidence">0%</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Expiração:</strong> <span id="signalExpiry">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Taxa de Retorno:</strong> <span id="signalReturn">90%</span>
+                </div>
+                <div class="signal-row strategy">
+                    <strong>Estratégia:</strong> <span id="signalStrategy">Nenhuma</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>🚀 BinaryVision AI Pro</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-circle">🎯</div>
+                <h1>BinaryVision AI Pro</h1>
+            </div>
+            <div class="status">
+                <select id="broker" onchange="updateMarket()">
+                    <option value="quotex">Quotex</option>
+                    <option value="iqoption">IQ Option</option>
+                    <option value="deriv">Deriv</option>
+                </select>
+                <span class="badge green" id="marketStatus">MERCADO ABERTO</span>
+                <button id="soundToggle" onclick="toggleSound()" title="Desligar som" style="background:none;border:none;cursor:pointer;font-size:18px;">🔊</button>
+            </div>
+        </header>
+
+        <div class="controls-grid">
+            <div class="control-item">
+                <label>Ativo</label>
+                <select id="asset"></select>
+            </div>
+
+            <div class="control-item">
+                <label>Timeframe</label>
+                <select id="timeframe">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="15">15 minutos</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <label>Expiração</label>
+                <select id="expiry">
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="3">3 minutos</option>
+                    <option value="4">4 minutos</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="candle">Fim da vela</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <button class="btn-primary" onclick="generateSignal()">
+                    🔄 Gerar Sinal
+                </button>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+
+        <div class="signal-panel" id="signalBox">
+            <div class="signal-header">
+                <h2>SINAL DE OPERAÇÃO</h2>
+                <div class="signal-timer" id="timer">00:00</div>
+            </div>
+
+            <div class="signal-content">
+                <div class="signal-row">
+                    <strong>Corretora:</strong> <span id="signalBroker">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ativo:</strong> <span id="signalAsset">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Ação:</strong> <span id="signalDirection">AGUARDANDO</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Confiança:</strong> <span id="signalConfidence">0%</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Expiração:</strong> <span id="signalExpiry">-</span>
+                </div>
+                <div class="signal-row">
+                    <strong>Taxa de Retorno:</strong> <span id="signalReturn">90%</span>
+                </div>
+                <div class="signal-row strategy">
+                    <strong>Estratégia:</strong> <span id="signalStrategy">Nenhuma</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>
